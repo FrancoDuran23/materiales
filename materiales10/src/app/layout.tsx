@@ -3,13 +3,68 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Materiales10 - Compará precios de materiales de construcción",
-  description: "Encontrá los mejores precios en materiales de construcción. Compará corralones y ferreterías cerca tuyo.",
+  metadataBase: new URL("https://materiales10.com"),
+  title: {
+    default: "Materiales10 - Compará precios de materiales de construcción",
+    template: "%s | Materiales10",
+  },
+  description:
+    "Encontrá los mejores precios en materiales de construcción. Compará corralones y ferreterías de Salta y Jujuy en un solo lugar.",
+  keywords: [
+    "materiales de construcción",
+    "cemento",
+    "hierro",
+    "ladrillos",
+    "corralones",
+    "ferreterías",
+    "Salta",
+    "Jujuy",
+    "precios",
+    "comparador",
+  ],
+  authors: [{ name: "Materiales10" }],
+  creator: "Materiales10",
+  publisher: "Materiales10",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Materiales10",
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_AR",
+    url: "https://materiales10.com",
+    title: "Materiales10 - Compará precios de materiales de construcción",
+    description:
+      "Encontrá los mejores precios en materiales de construcción. Compará corralones y ferreterías de Salta y Jujuy.",
+    siteName: "Materiales10",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Materiales10 - Comparador de precios",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Materiales10 - Compará precios de materiales de construcción",
+    description:
+      "Encontrá los mejores precios en materiales de construcción de Salta y Jujuy.",
+    images: ["/og-image.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 

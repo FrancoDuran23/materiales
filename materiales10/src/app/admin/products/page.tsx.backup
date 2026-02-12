@@ -17,11 +17,13 @@ export default function AdminProductsPage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
+  // Form
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [unit, setUnit] = useState("unidad");
 
+  // Filter
   const [filterCategory, setFilterCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -52,6 +54,20 @@ export default function AdminProductsPage() {
     setShowForm(false);
     setName("");
     setUnit("unidad");
+    setImageFile(null);
+    setImagePreview(null);
+  }
+
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   async function handleSave(e: FormEvent) {
@@ -60,10 +76,19 @@ export default function AdminProductsPage() {
 
     setSaving(true);
     try {
+      let imageUrl: string | null = null;
+
+      if (imageFile) {
+        setUploadingImage(true);
+        imageUrl = await uploadProductImage(imageFile);
+        setUploadingImage(false);
+      }
+
       await createProduct({
         name: name.trim(),
         category_id: categoryId,
         unit: unit.trim() || "unidad",
+        image_url: imageUrl,
       });
       setToast({ msg: "Producto creado", type: "success" });
 
@@ -75,6 +100,7 @@ export default function AdminProductsPage() {
       setToast({ msg: message, type: "error" });
     }
     setSaving(false);
+    setUploadingImage(false);
   }
 
   const filteredProducts = products.filter((p) => {
@@ -115,6 +141,51 @@ export default function AdminProductsPage() {
       {showForm && (
         <form onSubmit={handleSave} className="card p-5 space-y-4">
           <h2 className="font-semibold text-white">Nuevo producto</h2>
+
+          {/* Image Upload */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Imagen del producto</label>
+            <div className="flex items-start gap-4">
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="w-24 h-24 bg-gray-800 rounded-xl border-2 border-dashed border-gray-700 flex items-center justify-center cursor-pointer hover:border-amber-400 hover:bg-amber-400/10 transition-all overflow-hidden"
+              >
+                {imagePreview ? (
+                  <Image src={imagePreview} alt="Preview" width={96} height={96} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="text-center">
+                    <svg className="w-6 h-6 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-xs text-gray-400 mt-1 block">Subir</span>
+                  </div>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+              <div className="text-xs text-gray-400">
+                <p>Formatos: JPG, PNG, WebP</p>
+                <p>Tamaño máximo: 5MB</p>
+                {imageFile && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageFile(null);
+                      setImagePreview(null);
+                    }}
+                    className="text-red-500 mt-1 hover:underline"
+                  >
+                    Quitar imagen
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-white mb-2">Categoría *</label>
@@ -159,11 +230,12 @@ export default function AdminProductsPage() {
             disabled={saving}
             className="btn-primary w-full"
           >
-            {saving ? "Guardando..." : "Crear producto"}
+            {uploadingImage ? "Subiendo imagen..." : saving ? "Guardando..." : "Crear producto"}
           </button>
         </form>
       )}
 
+      {/* Filters */}
       <div className="flex gap-3 flex-wrap">
         <div className="flex-1 min-w-[200px] relative">
           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
@@ -209,10 +281,16 @@ export default function AdminProductsPage() {
         ) : (
           filteredProducts.map((p) => (
             <div key={p.id} className="card p-3 flex items-center gap-3">
-              <div className="w-12 h-12 bg-gray-800 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
-                <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
+              <div className="w-12 h-12 bg-gray-800 rounded-xl overflow-hidden flex-shrink-0">
+                {p.image_url ? (
+                  <Image src={p.image_url} alt={p.name} width={48} height={48} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm text-white truncate">{p.name}</p>

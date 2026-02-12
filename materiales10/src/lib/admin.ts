@@ -199,55 +199,7 @@ export async function createProduct(data: {
   return result;
 }
 
-export async function uploadProductImage(file: File): Promise<string> {
-  console.log("=== DEBUG uploadProductImage (Admin) ===");
-  console.log("File name:", file.name);
-  console.log("File size:", file.size, "bytes");
-  console.log("File type:", file.type);
-
-  const supabase = getSupabase();
-
-  // Check auth status
-  const { data: authData } = await supabase.auth.getSession();
-  console.log("Auth session exists:", !!authData.session);
-  console.log("User ID:", authData.session?.user?.id ?? "NO USER");
-
-  // List buckets to verify connection
-  const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
-  console.log("Available buckets:", buckets?.map(b => b.name) ?? "ERROR");
-  if (bucketsError) {
-    console.error("Error listing buckets:", bucketsError);
-  }
-
-  const fileExt = file.name.split(".").pop();
-  const fileName = `products/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-  console.log("Target file path:", fileName);
-  console.log("Target bucket: product-images");
-
-  const { data: uploadData, error } = await supabase.storage
-    .from("product-images")
-    .upload(fileName, file, { cacheControl: "3600", upsert: false });
-
-  console.log("Upload result - data:", uploadData);
-  console.log("Upload result - error:", error);
-
-  if (error) {
-    console.error("=== UPLOAD ERROR DETAILS ===");
-    console.error("Error message:", error.message);
-    console.error("Full error:", JSON.stringify(error, null, 2));
-
-    if (error.message?.includes("bucket") || error.message?.includes("not found")) {
-      throw new Error(`El bucket 'product-images' no existe o hay un problema. Error: ${error.message}`);
-    }
-    throw error;
-  }
-
-  const { data } = supabase.storage.from("product-images").getPublicUrl(fileName);
-  console.log("Public URL:", data.publicUrl);
-  console.log("=== END DEBUG ===");
-
-  return data.publicUrl;
-}
+// Products CRUD
 
 // ─── Categories ───
 
