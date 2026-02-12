@@ -1,0 +1,314 @@
+"use client";
+
+import { useEffect, useState, FormEvent, useRef } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { getSession } from "@/lib/auth";
+import { checkIsAdmin, fetchAllProducts, fetchAllCategories, createProduct, uploadProductImage } from "@/lib/admin";
+import { Spinner, Toast } from "@/components";
+import type { Product, Category } from "@/lib/database.types";
+
+export default function AdminProductsPage() {
+  const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [products, setProducts] = useState<(Product & { category_name: string })[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+  // Form
+  const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [unit, setUnit] = useState("unidad");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Filter
+  const [filterCategory, setFilterCategory] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    async function init() {
+      const { user } = await getSession();
+      if (!user) {
+        router.push("/admin/login");
+        return;
+      }
+      const admin = await checkIsAdmin();
+      if (!admin) {
+        router.push("/admin/login?error=not_admin");
+        return;
+      }
+      setIsAdmin(true);
+
+      const [p, c] = await Promise.all([fetchAllProducts(), fetchAllCategories()]);
+      setProducts(p);
+      setCategories(c);
+      if (c.length > 0) setCategoryId(c[0].id);
+      setLoading(false);
+    }
+    init();
+  }, [router]);
+
+  function resetForm() {
+    setShowForm(false);
+    setName("");
+    setUnit("unidad");
+    setImageFile(null);
+    setImagePreview(null);
+  }
+
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  async function handleSave(e: FormEvent) {
+    e.preventDefault();
+    if (!categoryId || !name.trim()) return;
+
+    setSaving(true);
+    try {
+      let imageUrl: string | null = null;
+
+      if (imageFile) {
+        setUploadingImage(true);
+        imageUrl = await uploadProductImage(imageFile);
+        setUploadingImage(false);
+      }
+
+      await createProduct({
+        name: name.trim(),
+        category_id: categoryId,
+        unit: unit.trim() || "unidad",
+        image_url: imageUrl,
+      });
+      setToast({ msg: "Producto creado", type: "success" });
+
+      const p = await fetchAllProducts();
+      setProducts(p);
+      resetForm();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Error";
+      setToast({ msg: message, type: "error" });
+    }
+    setSaving(false);
+    setUploadingImage(false);
+  }
+
+  const filteredProducts = products.filter((p) => {
+    const matchesCategory = !filterCategory || p.category_id === filterCategory;
+    const matchesSearch = !searchTerm || p.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  if (loading) return <Spinner />;
+  if (!isAdmin) return null;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="section-title">Administración</p>
+          <h1 className="text-xl font-bold text-white">Productos</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link href="/admin" className="btn-ghost text-sm">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Dashboard
+          </Link>
+          <button
+            onClick={() => {
+              resetForm();
+              setShowForm(!showForm);
+            }}
+            className="btn-primary text-sm !px-4 !py-2"
+          >
+            {showForm ? "Cancelar" : "+ Nuevo producto"}
+          </button>
+        </div>
+      </div>
+
+      {showForm && (
+        <form onSubmit={handleSave} className="card p-5 space-y-4">
+          <h2 className="font-semibold text-white">Nuevo producto</h2>
+
+          {/* Image Upload */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Imagen del producto</label>
+            <div className="flex items-start gap-4">
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="w-24 h-24 bg-gray-800 rounded-xl border-2 border-dashed border-gray-700 flex items-center justify-center cursor-pointer hover:border-amber-400 hover:bg-amber-400/10 transition-all overflow-hidden"
+              >
+                {imagePreview ? (
+                  <Image src={imagePreview} alt="Preview" width={96} height={96} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="text-center">
+                    <svg className="w-6 h-6 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-xs text-gray-400 mt-1 block">Subir</span>
+                  </div>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+              <div className="text-xs text-gray-400">
+                <p>Formatos: JPG, PNG, WebP</p>
+                <p>Tamaño máximo: 5MB</p>
+                {imageFile && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageFile(null);
+                      setImagePreview(null);
+                    }}
+                    className="text-red-500 mt-1 hover:underline"
+                  >
+                    Quitar imagen
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Categoría *</label>
+            <select
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              className="input"
+            >
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.icon} {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Nombre *</label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ej: Cemento Portland 50kg"
+              className="input"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Unidad de venta</label>
+            <input
+              type="text"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              placeholder="unidad, bolsa, m³, kg..."
+              className="input"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="btn-primary w-full"
+          >
+            {uploadingImage ? "Subiendo imagen..." : saving ? "Guardando..." : "Crear producto"}
+          </button>
+        </form>
+      )}
+
+      {/* Filters */}
+      <div className="flex gap-3 flex-wrap">
+        <div className="flex-1 min-w-[200px] relative">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar producto..."
+            className="input !py-3 pl-10"
+          />
+        </div>
+        <select
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+          className="input !py-3 w-auto"
+        >
+          <option value="">Todas las categorías</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.icon} {c.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <p className="text-sm text-gray-400">{filteredProducts.length} productos</p>
+
+      <div className="space-y-2">
+        {filteredProducts.length === 0 ? (
+          <div className="card p-8 text-center">
+            <div className="w-12 h-12 bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <p className="text-white font-medium">Sin productos</p>
+            <p className="text-sm text-gray-400">Agregá el primer producto</p>
+          </div>
+        ) : (
+          filteredProducts.map((p) => (
+            <div key={p.id} className="card p-3 flex items-center gap-3">
+              <div className="w-12 h-12 bg-gray-800 rounded-xl overflow-hidden flex-shrink-0">
+                {p.image_url ? (
+                  <Image src={p.image_url} alt={p.name} width={48} height={48} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm text-white truncate">{p.name}</p>
+                <p className="text-xs text-gray-400">
+                  {p.category_name} — {p.unit}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {toast && <Toast message={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+    </div>
+  );
+}
