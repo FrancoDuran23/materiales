@@ -90,12 +90,12 @@ export function LocalBusinessSchema(business: {
 
 export function WebSiteSchema() {
   return {
-    name: "Materiales10",
+    name: "ConstructNOA",
     description: "Comparador de precios de materiales de construcción en Salta y Jujuy",
-    url: "https://materiales10.com",
+    url: "https://constructnoa.vercel.app",
     potentialAction: {
       "@type": "SearchAction",
-      target: "https://materiales10.com/search?q={search_term_string}",
+      target: "https://constructnoa.vercel.app/search?q={search_term_string}",
       "query-input": "required name=search_term_string",
     },
   };

@@ -75,6 +75,8 @@ export async function fetchOfferById(offerId: string): Promise<SearchOfferResult
     whatsapp: string | null;
     lat: number | null;
     lng: number | null;
+    free_shipping: boolean;
+    free_shipping_radius_km: number | null;
     vendor: { name: string };
   };
 
@@ -95,5 +97,7 @@ export async function fetchOfferById(offerId: string): Promise<SearchOfferResult
     branch_lat: b?.lat ?? null,
     branch_lng: b?.lng ?? null,
     distance_km: null,
+    branch_free_shipping: b?.free_shipping ?? false,
+    branch_free_shipping_radius_km: b?.free_shipping_radius_km ?? null,
   };
 }

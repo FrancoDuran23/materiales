@@ -4,7 +4,8 @@ import { useEffect, useState, FormEvent } from "react";
 import { getSession, signIn, signUp, signOut } from "@/lib/auth";
 import { fetchMyVendor, createVendor, fetchMyBranches, createBranch, updateBranch, claimVendorByEmail } from "@/lib/vendor";
 import { PROVINCES } from "@/lib/constants";
-import { Spinner, Toast } from "@/components";
+import { Spinner, Toast, AddressAutocomplete } from "@/components";
+import type { AddressResult } from "@/components/AddressAutocomplete";
 import type { Vendor, Branch } from "@/lib/database.types";
 import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
@@ -35,6 +36,10 @@ export default function VendorPage() {
   const [branchAddress, setBranchAddress] = useState("");
   const [branchCity, setBranchCity] = useState("");
   const [branchProvince, setBranchProvince] = useState(PROVINCES[0]);
+  const [branchLat, setBranchLat] = useState("");
+  const [branchLng, setBranchLng] = useState("");
+  const [branchFreeShipping, setBranchFreeShipping] = useState(false);
+  const [branchFreeShippingRadius, setBranchFreeShippingRadius] = useState("");
   const [branchPhone, setBranchPhone] = useState("");
   const [branchWhatsapp, setBranchWhatsapp] = useState("");
   const [savingBranch, setSavingBranch] = useState(false);
@@ -116,6 +121,10 @@ export default function VendorPage() {
     setBranchAddress("");
     setBranchCity("");
     setBranchProvince(PROVINCES[0]);
+    setBranchLat("");
+    setBranchLng("");
+    setBranchFreeShipping(false);
+    setBranchFreeShippingRadius("");
     setBranchPhone("");
     setBranchWhatsapp("");
   }
@@ -126,9 +135,21 @@ export default function VendorPage() {
     setBranchAddress(branch.address);
     setBranchCity(branch.city);
     setBranchProvince(branch.province);
+    setBranchLat(branch.lat?.toString() ?? "");
+    setBranchLng(branch.lng?.toString() ?? "");
+    setBranchFreeShipping(branch.free_shipping ?? false);
+    setBranchFreeShippingRadius(branch.free_shipping_radius_km?.toString() ?? "");
     setBranchPhone(branch.phone ?? "");
     setBranchWhatsapp(branch.whatsapp ?? "");
     setShowBranchForm(true);
+  }
+
+  function handleAddressSelect(result: AddressResult) {
+    setBranchAddress(result.address);
+    if (result.city) setBranchCity(result.city);
+    if (result.province) setBranchProvince(result.province);
+    setBranchLat(result.lat.toString());
+    setBranchLng(result.lng.toString());
   }
 
   async function handleSaveBranch(e: FormEvent) {
@@ -142,8 +163,12 @@ export default function VendorPage() {
           address: branchAddress.trim(),
           city: branchCity.trim(),
           province: branchProvince,
+          lat: branchLat ? parseFloat(branchLat) : null,
+          lng: branchLng ? parseFloat(branchLng) : null,
           phone: branchPhone.trim() || null,
           whatsapp: branchWhatsapp.trim() || null,
+          free_shipping: branchFreeShipping,
+          free_shipping_radius_km: branchFreeShipping && branchFreeShippingRadius ? parseFloat(branchFreeShippingRadius) : null,
         });
         setToast({ msg: "Sucursal actualizada", type: "success" });
       } else {
@@ -152,8 +177,12 @@ export default function VendorPage() {
           address: branchAddress.trim(),
           city: branchCity.trim(),
           province: branchProvince,
+          lat: branchLat ? parseFloat(branchLat) : undefined,
+          lng: branchLng ? parseFloat(branchLng) : undefined,
           phone: branchPhone.trim() || undefined,
           whatsapp: branchWhatsapp.trim() || undefined,
+          free_shipping: branchFreeShipping,
+          free_shipping_radius_km: branchFreeShipping && branchFreeShippingRadius ? parseFloat(branchFreeShippingRadius) : undefined,
         });
         setBranches([b, ...branches]);
         const isActive = branches.filter(br => br.is_active).length === 0;
@@ -431,11 +460,17 @@ export default function VendorPage() {
                     </div>
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-white mb-1">Dirección *</label>
-                      <input type="text" required placeholder="Av. San Martín 1234" value={branchAddress} onChange={(e) => setBranchAddress(e.target.value)} className="input" />
+                      <AddressAutocomplete
+                        value={branchAddress}
+                        onChange={setBranchAddress}
+                        onSelect={handleAddressSelect}
+                        placeholder="Buscá la dirección en Google Maps..."
+                        required
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-white mb-1">Ciudad *</label>
-                      <input type="text" required placeholder="Ej: Buenos Aires" value={branchCity} onChange={(e) => setBranchCity(e.target.value)} className="input" />
+                      <input type="text" required placeholder="Ej: Salta, Jujuy, Orán..." value={branchCity} onChange={(e) => setBranchCity(e.target.value)} className="input" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-white mb-1">Provincia</label>
@@ -450,6 +485,40 @@ export default function VendorPage() {
                     <div>
                       <label className="block text-sm font-medium text-white mb-1">WhatsApp</label>
                       <input type="text" placeholder="5491112345678" value={branchWhatsapp} onChange={(e) => setBranchWhatsapp(e.target.value)} className="input" />
+                    </div>
+                    <div className="md:col-span-2 rounded-xl border border-gray-800 bg-gray-900/50 p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">🚚</span>
+                          <div>
+                            <p className="text-sm font-medium text-white">Envío gratis</p>
+                            <p className="text-xs text-gray-400">Ofrecé envío sin cargo a tus clientes</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setBranchFreeShipping(!branchFreeShipping)}
+                          className={`relative w-11 h-6 rounded-full transition-colors ${branchFreeShipping ? "bg-green-500" : "bg-gray-700"}`}
+                        >
+                          <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${branchFreeShipping ? "translate-x-5" : ""}`} />
+                        </button>
+                      </div>
+                      {branchFreeShipping && (
+                        <div className="pt-3 border-t border-gray-800">
+                          <label className="block text-sm font-medium text-white mb-2">¿Hasta cuántos km hacés envío gratis?</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              min={1}
+                              placeholder="Ej: 20"
+                              value={branchFreeShippingRadius}
+                              onChange={(e) => setBranchFreeShippingRadius(e.target.value)}
+                              className="input w-28 !py-2"
+                            />
+                            <span className="text-sm text-gray-400">km</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-3 pt-2">
@@ -490,6 +559,11 @@ export default function VendorPage() {
                         </div>
                         <p className="text-sm text-gray-400">{b.address}</p>
                         <p className="text-xs text-gray-400">{b.city}, {b.province}</p>
+                        {b.free_shipping && (
+                          <p className="text-xs text-green-400 font-medium mt-0.5">
+                            Envío gratis{b.free_shipping_radius_km ? ` hasta ${b.free_shipping_radius_km} km` : ""}
+                          </p>
+                        )}
                       </div>
                       <button onClick={() => handleEditBranch(b)} className="text-xs text-amber-400 font-medium hover:text-amber-300 transition-colors">
                         Editar

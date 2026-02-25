@@ -1,6 +1,6 @@
 import type { BuyerLocation } from "./database.types";
 
-const STORAGE_KEY = "materiales10_location";
+const STORAGE_KEY = "constructnoa_location";
 
 // Coordenadas aproximadas de principales ciudades de Argentina
 const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
@@ -28,6 +28,10 @@ const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
   // Tucumán
   "tucuman": { lat: -26.8083, lng: -65.2176 },
   "san miguel de tucuman": { lat: -26.8083, lng: -65.2176 },
+  "yerba buena": { lat: -26.8167, lng: -65.2833 },
+  "tafi viejo": { lat: -26.7333, lng: -65.2500 },
+  "concepcion": { lat: -27.3333, lng: -65.5833 },
+  "banda del rio sali": { lat: -26.8500, lng: -65.1667 },
 
   // Salta
   "salta": { lat: -24.7821, lng: -65.4232 },
@@ -36,13 +40,27 @@ const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
   "tartagal": { lat: -22.5156, lng: -63.8012 },
   "cafayate": { lat: -26.0722, lng: -65.9769 },
   "cerrillos": { lat: -24.8958, lng: -65.4861 },
+  "san lorenzo": { lat: -24.7275, lng: -65.4967 },
+  "vaqueros": { lat: -24.6983, lng: -65.4108 },
+  "la merced": { lat: -24.9833, lng: -65.4833 },
+  "metan": { lat: -25.4969, lng: -64.9728 },
+  "rosario de la frontera": { lat: -25.7989, lng: -64.9706 },
+  "general guemes": { lat: -24.6667, lng: -65.05 },
+  "embarcacion": { lat: -23.2167, lng: -64.0833 },
 
   // Jujuy
   "san salvador de jujuy": { lat: -24.1858, lng: -65.2995 },
   "jujuy": { lat: -24.1858, lng: -65.2995 },
   "san pedro de jujuy": { lat: -24.2315, lng: -64.8686 },
+  "san pedro": { lat: -24.2315, lng: -64.8686 },
   "palpala": { lat: -24.2573, lng: -65.213 },
   "libertador": { lat: -23.8047, lng: -64.7917 },
+  "monterrico": { lat: -24.2167, lng: -65.2333 },
+  "el carmen": { lat: -24.3833, lng: -65.2667 },
+  "humahuaca": { lat: -23.2050, lng: -65.3506 },
+  "tilcara": { lat: -23.5783, lng: -65.3953 },
+  "la quiaca": { lat: -22.1044, lng: -65.5928 },
+  "fraile pintado": { lat: -23.9417, lng: -64.8028 },
 
   // Neuquén
   "neuquen": { lat: -38.9516, lng: -68.0591 },
@@ -162,4 +180,20 @@ export function haversine(lat1: number, lon1: number, lat2: number, lon2: number
       Math.cos((lat2 * Math.PI) / 180) *
       Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+export function getGoogleMapsUrl(
+  lat?: number | null,
+  lng?: number | null,
+  address?: string | null,
+  city?: string | null
+): string | null {
+  if (lat && lng) {
+    return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+  }
+  const parts = [address, city].filter(Boolean).join(", ");
+  if (parts) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts)}`;
+  }
+  return null;
 }

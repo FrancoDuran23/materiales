@@ -3,10 +3,10 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://materiales10.com"),
+  metadataBase: new URL("https://constructnoa.vercel.app"),
   title: {
-    default: "Materiales10 - Compará precios de materiales de construcción",
-    template: "%s | Materiales10",
+    default: "ConstructNOA - Compará precios de materiales de construcción",
+    template: "%s | ConstructNOA",
   },
   description:
     "Encontrá los mejores precios en materiales de construcción. Compará corralones y ferreterías de Salta y Jujuy en un solo lugar.",
@@ -21,39 +21,40 @@ export const metadata: Metadata = {
     "Jujuy",
     "precios",
     "comparador",
+    "NOA",
   ],
-  authors: [{ name: "Materiales10" }],
-  creator: "Materiales10",
-  publisher: "Materiales10",
+  authors: [{ name: "ConstructNOA" }],
+  creator: "ConstructNOA",
+  publisher: "ConstructNOA",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Materiales10",
+    title: "ConstructNOA",
   },
   openGraph: {
     type: "website",
     locale: "es_AR",
-    url: "https://materiales10.com",
-    title: "Materiales10 - Compará precios de materiales de construcción",
+    url: "https://constructnoa.vercel.app",
+    title: "ConstructNOA - Compará precios de materiales de construcción",
     description:
       "Encontrá los mejores precios en materiales de construcción. Compará corralones y ferreterías de Salta y Jujuy.",
-    siteName: "Materiales10",
+    siteName: "ConstructNOA",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/images/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Materiales10 - Comparador de precios",
+        alt: "ConstructNOA - Comparador de precios",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Materiales10 - Compará precios de materiales de construcción",
+    title: "ConstructNOA - Compará precios de materiales de construcción",
     description:
       "Encontrá los mejores precios en materiales de construcción de Salta y Jujuy.",
-    images: ["/og-image.jpg"],
+    images: ["/images/og-image.png"],
   },
   robots: {
     index: true,
@@ -87,8 +88,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-gray-800">
           <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 group">
-              <span className="text-xl font-bold text-white">Materiales</span>
-              <span className="text-xl font-bold text-amber-400">10</span>
+              <span className="text-xl font-bold text-white">Construct</span>
+              <span className="text-xl font-bold text-amber-400">NOA</span>
             </Link>
             <div className="flex items-center gap-4">
               <Link
@@ -116,8 +117,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="max-w-6xl mx-auto px-4 py-6">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <Link href="/" className="flex items-center gap-2">
-                <span className="font-bold text-white">Materiales</span>
-                <span className="font-bold text-amber-400">10</span>
+                <span className="font-bold text-white">Construct</span>
+                <span className="font-bold text-amber-400">NOA</span>
               </Link>
               <p className="text-sm text-gray-400">
                 Hecho para ahorrar tiempo en obra.

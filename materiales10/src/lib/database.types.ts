@@ -50,6 +50,8 @@ export interface Database {
           lng: number | null;
           phone: string | null;
           whatsapp: string | null;
+          free_shipping: boolean;
+          free_shipping_radius_km: number | null;
           created_at: string;
         };
         Insert: Omit<Database["public"]["Tables"]["branches"]["Row"], "id" | "created_at">;
@@ -127,6 +129,8 @@ export interface SearchOfferResult {
   branch_lat: number | null;
   branch_lng: number | null;
   distance_km: number | null;
+  branch_free_shipping: boolean;
+  branch_free_shipping_radius_km: number | null;
 }
 
 export interface Category {
@@ -165,6 +169,8 @@ export interface Branch {
   lng: number | null;
   phone: string | null;
   whatsapp: string | null;
+  free_shipping: boolean;
+  free_shipping_radius_km: number | null;
   is_active: boolean;
 }
 

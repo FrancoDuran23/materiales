@@ -61,7 +61,7 @@ function AdminLoginContent() {
   return (
     <div className="max-w-sm mx-auto space-y-6">
       <div className="text-center">
-        <h1 className="text-xl font-bold text-white">Admin - Materiales10</h1>
+        <h1 className="text-xl font-bold text-white">Admin - ConstructNOA</h1>
         <p className="text-sm text-gray-400">Panel de administración</p>
       </div>
 

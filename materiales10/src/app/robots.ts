@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/vendor/", "/admin/", "/api/"],
       },
     ],
-    sitemap: "https://materiales10.com/sitemap.xml",
+    sitemap: "https://constructnoa.vercel.app/sitemap.xml",
   };
 }

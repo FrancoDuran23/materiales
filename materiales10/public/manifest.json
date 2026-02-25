@@ -1,6 +1,6 @@
 {
-  "name": "Materiales10 - Compará precios de materiales",
-  "short_name": "Materiales10",
+  "name": "ConstructNOA - Compará precios de materiales",
+  "short_name": "ConstructNOA",
   "description": "Encontrá los mejores precios en materiales de construcción cerca tuyo",
   "start_url": "/",
   "display": "standalone",

@@ -13,7 +13,8 @@ import {
   deleteBranch,
 } from "@/lib/admin";
 import { PROVINCES } from "@/lib/constants";
-import { Spinner, Toast } from "@/components";
+import { Spinner, Toast, AddressAutocomplete } from "@/components";
+import type { AddressResult } from "@/components/AddressAutocomplete";
 import type { Vendor, Branch } from "@/lib/database.types";
 
 export default function AdminBranchesPage() {
@@ -37,6 +38,8 @@ export default function AdminBranchesPage() {
   const [lng, setLng] = useState("");
   const [phone, setPhone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [freeShipping, setFreeShipping] = useState(false);
+  const [freeShippingRadius, setFreeShippingRadius] = useState("");
 
   useEffect(() => {
     async function init() {
@@ -72,6 +75,16 @@ export default function AdminBranchesPage() {
     setLng("");
     setPhone("");
     setWhatsapp("");
+    setFreeShipping(false);
+    setFreeShippingRadius("");
+  }
+
+  function handleAddressSelect(result: AddressResult) {
+    setAddress(result.address);
+    if (result.city) setCity(result.city);
+    if (result.province) setProvince(result.province);
+    setLat(result.lat.toString());
+    setLng(result.lng.toString());
   }
 
   async function handleSave(e: FormEvent) {
@@ -90,6 +103,8 @@ export default function AdminBranchesPage() {
           lng: lng ? parseFloat(lng) : null,
           phone: phone.trim() || null,
           whatsapp: whatsapp.trim() || null,
+          free_shipping: freeShipping,
+          free_shipping_radius_km: freeShipping && freeShippingRadius ? parseFloat(freeShippingRadius) : null,
         });
         setToast({ msg: "Sucursal actualizada", type: "success" });
       } else {
@@ -103,6 +118,8 @@ export default function AdminBranchesPage() {
           lng: lng ? parseFloat(lng) : undefined,
           phone: phone.trim() || undefined,
           whatsapp: whatsapp.trim() || undefined,
+          free_shipping: freeShipping,
+          free_shipping_radius_km: freeShipping && freeShippingRadius ? parseFloat(freeShippingRadius) : undefined,
         });
         setToast({ msg: "Sucursal creada", type: "success" });
       }
@@ -128,6 +145,8 @@ export default function AdminBranchesPage() {
     setLng(branch.lng?.toString() ?? "");
     setPhone(branch.phone ?? "");
     setWhatsapp(branch.whatsapp ?? "");
+    setFreeShipping(branch.free_shipping ?? false);
+    setFreeShippingRadius(branch.free_shipping_radius_km?.toString() ?? "");
     setShowForm(true);
   }
 
@@ -220,13 +239,12 @@ export default function AdminBranchesPage() {
 
           <div>
             <label className="block text-sm font-medium text-white mb-2">Dirección *</label>
-            <input
-              type="text"
-              required
+            <AddressAutocomplete
               value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Av. Entre Ríos 1500"
-              className="input"
+              onChange={setAddress}
+              onSelect={handleAddressSelect}
+              placeholder="Buscá la dirección en Google Maps..."
+              required
             />
           </div>
 
@@ -238,7 +256,7 @@ export default function AdminBranchesPage() {
                 required
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                placeholder="Ej: Buenos Aires, Córdoba..."
+                placeholder="Ej: Salta, Jujuy, Orán..."
                 className="input"
               />
             </div>
@@ -304,6 +322,41 @@ export default function AdminBranchesPage() {
             </div>
           </div>
 
+          <div className="rounded-xl border border-gray-800 bg-gray-900/50 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🚚</span>
+                <div>
+                  <p className="text-sm font-medium text-white">Envío gratis</p>
+                  <p className="text-xs text-gray-400">Ofrecé envío sin cargo a clientes</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFreeShipping(!freeShipping)}
+                className={`relative w-11 h-6 rounded-full transition-colors ${freeShipping ? "bg-green-500" : "bg-gray-700"}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${freeShipping ? "translate-x-5" : ""}`} />
+              </button>
+            </div>
+            {freeShipping && (
+              <div className="pt-3 border-t border-gray-800">
+                <label className="block text-sm font-medium text-white mb-2">¿Hasta cuántos km hacés envío gratis?</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={1}
+                    value={freeShippingRadius}
+                    onChange={(e) => setFreeShippingRadius(e.target.value)}
+                    placeholder="Ej: 20"
+                    className="input w-28 !py-2"
+                  />
+                  <span className="text-sm text-gray-400">km</span>
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             type="submit"
             disabled={saving}
@@ -338,6 +391,11 @@ export default function AdminBranchesPage() {
                   <p className="text-xs text-gray-400 mt-1">
                     {b.address}, {b.city}, {b.province}
                   </p>
+                  {b.free_shipping && (
+                    <p className="text-xs text-green-400 font-medium">
+                      Envío gratis{b.free_shipping_radius_km ? ` hasta ${b.free_shipping_radius_km} km` : ""}
+                    </p>
+                  )}
                   {b.phone && <p className="text-xs text-gray-400">Tel: {b.phone}</p>}
                 </div>
                 <span className={b.is_active ? "badge badge-success" : "badge badge-warning"}>

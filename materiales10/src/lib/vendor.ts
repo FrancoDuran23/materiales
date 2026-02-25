@@ -112,6 +112,8 @@ export async function createBranch(
     lng?: number;
     phone?: string;
     whatsapp?: string;
+    free_shipping?: boolean;
+    free_shipping_radius_km?: number;
   }
 ): Promise<Branch> {
   // Validaciones
@@ -149,9 +151,11 @@ export async function createBranch(
       lng: data.lng ?? null,
       phone: data.phone?.trim() ?? null,
       whatsapp: data.whatsapp?.trim() ?? null,
+      free_shipping: data.free_shipping ?? false,
+      free_shipping_radius_km: data.free_shipping_radius_km ?? null,
       is_active: shouldBeActive,
     })
-    .select("id, vendor_id, name, address, city, province, lat, lng, phone, whatsapp, is_active")
+    .select("id, vendor_id, name, address, city, province, lat, lng, phone, whatsapp, free_shipping, free_shipping_radius_km, is_active")
     .single();
 
   if (error) {
@@ -179,6 +183,8 @@ export async function updateBranch(
     lng?: number | null;
     phone?: string | null;
     whatsapp?: string | null;
+    free_shipping?: boolean;
+    free_shipping_radius_km?: number | null;
   }
 ): Promise<void> {
   const supabase = getSupabase();

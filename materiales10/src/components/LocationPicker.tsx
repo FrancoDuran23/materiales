@@ -1,8 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { loadLocation, saveLocation, requestGeolocation, cityToCoords } from "@/lib/geo";
+import { loadLocation, saveLocation, clearLocation, requestGeolocation, cityToCoords } from "@/lib/geo";
 import type { BuyerLocation } from "@/lib/database.types";
+
+const NOA_SUGGESTIONS = [
+  "Salta",
+  "Jujuy",
+  "San Pedro",
+  "Orán",
+  "Tartagal",
+  "Palpalá",
+  "Tucumán",
+];
 
 interface Props {
   onLocationChange: (loc: BuyerLocation | null) => void;
@@ -32,24 +42,38 @@ export default function LocationPicker({ onLocationChange }: Props) {
       setLocation(loc);
       onLocationChange(loc);
     } catch {
-      setError("No se pudo obtener ubicación. Ingresá tu ciudad.");
+      setError("No se pudo obtener ubicación. Ingresá tu ciudad manualmente.");
       setShowManual(true);
     } finally {
       setLoading(false);
     }
   }
 
-  function handleManualCity() {
-    const coords = cityToCoords(cityInput);
+  function selectCity(city: string) {
+    const coords = cityToCoords(city);
     if (!coords) {
-      setError("Ciudad no encontrada. Probá con otra ciudad.");
+      setError(`"${city}" no encontrada. Probá escribiendo el nombre completo.`);
       return;
     }
-    const loc: BuyerLocation = { ...coords, source: "manual", label: cityInput };
+    const loc: BuyerLocation = { ...coords, source: "manual", label: city };
     saveLocation(loc);
     setLocation(loc);
     onLocationChange(loc);
     setShowManual(false);
+    setError("");
+    setCityInput("");
+  }
+
+  function handleManualCity() {
+    if (!cityInput.trim()) return;
+    selectCity(cityInput.trim());
+  }
+
+  function handleClear() {
+    clearLocation();
+    setLocation(null);
+    onLocationChange(null);
+    setCityInput("");
     setError("");
   }
 
@@ -68,7 +92,7 @@ export default function LocationPicker({ onLocationChange }: Props) {
           </svg>
           {loading ? "Obteniendo..." : "Usar mi ubicación"}
         </button>
-        {!showManual && (
+        {!showManual && !location && (
           <button
             type="button"
             onClick={() => setShowManual(true)}
@@ -78,29 +102,52 @@ export default function LocationPicker({ onLocationChange }: Props) {
           </button>
         )}
         {location && (
-          <span className="badge badge-success text-xs">
-            {location.source === "gps" ? "GPS activo" : location.label ?? "Manual"}
-          </span>
+          <>
+            <span className="badge badge-success text-xs">
+              {location.source === "gps" ? "GPS activo" : location.label ?? "Manual"}
+            </span>
+            <button
+              type="button"
+              onClick={handleClear}
+              className="text-xs text-gray-400 hover:text-red-400 transition-colors"
+            >
+              Borrar ubicación
+            </button>
+          </>
         )}
       </div>
 
-      {showManual && (
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={cityInput}
-            onChange={(e) => setCityInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleManualCity()}
-            placeholder="Ej: Buenos Aires, Córdoba, Mendoza..."
-            className="input flex-1 !py-2"
-          />
-          <button
-            type="button"
-            onClick={handleManualCity}
-            className="btn-primary !py-2 !px-4"
-          >
-            OK
-          </button>
+      {showManual && !location && (
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={cityInput}
+              onChange={(e) => setCityInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleManualCity()}
+              placeholder="Ej: Salta, Jujuy, Tucumán, Orán..."
+              className="input flex-1 !py-2"
+            />
+            <button
+              type="button"
+              onClick={handleManualCity}
+              className="btn-primary !py-2 !px-4"
+            >
+              OK
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {NOA_SUGGESTIONS.map((city) => (
+              <button
+                key={city}
+                type="button"
+                onClick={() => selectCity(city)}
+                className="text-xs px-2.5 py-1 rounded-full bg-gray-800 text-gray-300 hover:bg-amber-400/20 hover:text-amber-400 transition-colors"
+              >
+                {city}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 

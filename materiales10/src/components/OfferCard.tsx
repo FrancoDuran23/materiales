@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { STOCK_LABELS } from "@/lib/constants";
-import { formatDistance } from "@/lib/geo";
+import { formatDistance, getGoogleMapsUrl } from "@/lib/geo";
 import type { SearchOfferResult } from "@/lib/database.types";
 
 const DEFAULT_PRODUCT_IMAGE = "/images/default-product.svg";
@@ -62,12 +62,37 @@ export default function OfferCard({ offer }: Props) {
                 {formatDistance(offer.distance_km)}
               </span>
             )}
+            {(() => {
+              const mapsUrl = getGoogleMapsUrl(offer.branch_lat, offer.branch_lng, offer.branch_address, offer.branch_city);
+              return mapsUrl ? (
+                <a
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-gray-400 hover:text-amber-400 transition-colors"
+                  title="Ver ubicación"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </a>
+              ) : null;
+            })()}
           </div>
         </div>
 
         {/* Precio y Stock */}
         <div className="flex flex-col items-end justify-between">
-          <span className={getBadgeClass()}>{stockLabel}</span>
+          <div className="flex flex-col items-end gap-1">
+            <span className={getBadgeClass()}>{stockLabel}</span>
+            {offer.branch_free_shipping && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-500/20 text-green-400 font-medium">
+                Envío gratis
+              </span>
+            )}
+          </div>
           <div className="text-right">
             <p className="text-lg font-bold text-amber-400">
               ${offer.price.toLocaleString("es-AR")}

@@ -107,7 +107,7 @@ export async function geocodeAddressNominatim(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1`,
       {
         headers: {
-          "User-Agent": "Materiales10/1.0",
+          "User-Agent": "ConstructNOA/1.0",
         },
       }
     );

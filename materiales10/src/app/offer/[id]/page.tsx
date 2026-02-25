@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Spinner, Toast } from "@/components";
-import { fetchOfferById, createOrder, STOCK_LABELS, STOCK_COLORS, loadLocation, formatDistance, haversine } from "@/lib";
+import { fetchOfferById, createOrder, STOCK_LABELS, STOCK_COLORS, loadLocation, formatDistance, haversine, getGoogleMapsUrl } from "@/lib";
 import type { SearchOfferResult } from "@/lib/database.types";
 
 export default function OfferDetailPage() {
@@ -100,7 +100,26 @@ export default function OfferDetailPage() {
         {offer.distance_km !== null && (
           <p className="text-sm text-gray-500">Distancia: {formatDistance(offer.distance_km)}</p>
         )}
-        <div className="flex gap-3 mt-2">
+        {offer.branch_free_shipping && (
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-sm font-medium text-green-400">
+              🚚 Envío gratis
+              {offer.branch_free_shipping_radius_km ? ` hasta ${offer.branch_free_shipping_radius_km} km` : ""}
+            </span>
+            {offer.distance_km !== null && offer.branch_free_shipping_radius_km && (
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                offer.distance_km <= offer.branch_free_shipping_radius_km
+                  ? "bg-green-500/20 text-green-400"
+                  : "bg-gray-800 text-gray-400"
+              }`}>
+                {offer.distance_km <= offer.branch_free_shipping_radius_km
+                  ? "Estás dentro del radio"
+                  : "Fuera del radio"}
+              </span>
+            )}
+          </div>
+        )}
+        <div className="flex gap-3 mt-2 flex-wrap">
           {offer.branch_phone && (
             <a href={`tel:${offer.branch_phone}`} className="text-sm text-amber-400 hover:underline">
               📞 Llamar
@@ -116,6 +135,19 @@ export default function OfferDetailPage() {
               💬 WhatsApp
             </a>
           )}
+          {(() => {
+            const mapsUrl = getGoogleMapsUrl(offer.branch_lat, offer.branch_lng, offer.branch_address, offer.branch_city);
+            return mapsUrl ? (
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-400 hover:underline"
+              >
+                📍 Ver ubicación
+              </a>
+            ) : null;
+          })()}
         </div>
       </div>
 

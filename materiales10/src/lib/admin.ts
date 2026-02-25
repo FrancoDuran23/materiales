@@ -117,6 +117,8 @@ export async function createBranchByAdmin(data: {
   lng?: number;
   phone?: string;
   whatsapp?: string;
+  free_shipping?: boolean;
+  free_shipping_radius_km?: number;
 }): Promise<Branch> {
   const supabase = getSupabase();
   const { data: result, error } = await supabase
@@ -131,6 +133,8 @@ export async function createBranchByAdmin(data: {
       lng: data.lng ?? null,
       phone: data.phone ?? null,
       whatsapp: data.whatsapp ?? null,
+      free_shipping: data.free_shipping ?? false,
+      free_shipping_radius_km: data.free_shipping_radius_km ?? null,
       is_active: true,
     })
     .select()
