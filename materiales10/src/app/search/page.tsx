@@ -54,6 +54,11 @@ function SearchContent() {
     doSearch(query);
   }
 
+  // Re-search when location changes
+  useEffect(() => {
+    if (searched && location) doSearch(query);
+  }, [location]);
+
   function handleSortChange(mode: "price" | "distance") {
     setSortMode(mode);
     if (searched) doSearch(query);

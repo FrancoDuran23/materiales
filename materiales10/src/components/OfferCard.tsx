@@ -87,22 +87,13 @@ export default function OfferCard({ offer }: Props) {
         <div className="flex flex-col items-end justify-between">
           <div className="flex flex-col items-end gap-1">
             <span className={getBadgeClass()}>{stockLabel}</span>
-            {offer.branch_free_shipping && (() => {
-              const hasRadius = offer.branch_free_shipping_radius_km != null;
-              const withinRadius = hasRadius && offer.distance_km != null && offer.distance_km <= offer.branch_free_shipping_radius_km!;
-              const noDistance = offer.distance_km == null;
-
-              // Show "Envío gratis" only if: no radius set, or within radius, or distance unknown
-              if (!hasRadius || withinRadius || noDistance) {
-                return (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-500/20 text-green-400 font-medium">
-                    Envío gratis
-                    {hasRadius && noDistance ? ` (hasta ${offer.branch_free_shipping_radius_km} km)` : ""}
-                  </span>
-                );
-              }
-              return null;
-            })()}
+            {offer.branch_free_shipping && offer.distance_km != null &&
+              offer.branch_free_shipping_radius_km != null &&
+              offer.distance_km <= offer.branch_free_shipping_radius_km && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-500/20 text-green-400 font-medium">
+                Envío gratis
+              </span>
+            )}
           </div>
           <div className="text-right">
             <p className="text-lg font-bold text-amber-400">
