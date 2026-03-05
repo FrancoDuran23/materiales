@@ -183,6 +183,20 @@ export interface Offer {
   image_url: string | null;
 }
 
+export type VendorRequestStatus = "pending" | "approved" | "rejected";
+
+export interface VendorRequest {
+  id: string;
+  business_name: string;
+  email: string;
+  phone: string | null;
+  whatsapp: string | null;
+  status: VendorRequestStatus;
+  admin_notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface BuyerLocation {
   lat: number;
   lng: number;

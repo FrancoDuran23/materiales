@@ -1,5 +1,5 @@
 import { getSupabase } from "./supabase";
-import type { Vendor, Branch, Offer, Product, StockStatus } from "./database.types";
+import type { Vendor, Branch, Offer, Product, StockStatus, VendorRequest } from "./database.types";
 
 // ─── Vendor ───
 
@@ -81,6 +81,54 @@ export async function createVendor(
     throw new Error(`Error al registrar negocio: ${error.message}`);
   }
   return data as Vendor;
+}
+
+// ─── Vendor Requests ───
+
+export async function submitVendorRequest(data: {
+  business_name: string;
+  email: string;
+  phone?: string;
+  whatsapp?: string;
+}): Promise<VendorRequest> {
+  if (!data.business_name?.trim()) {
+    throw new Error("El nombre del negocio es obligatorio");
+  }
+  if (!data.email?.trim()) {
+    throw new Error("El email es obligatorio");
+  }
+
+  const supabase = getSupabase();
+
+  // Check if there's already a pending request with this email
+  const { data: existing } = await supabase
+    .from("vendor_requests")
+    .select("id, status")
+    .eq("email", data.email.trim().toLowerCase())
+    .eq("status", "pending")
+    .maybeSingle();
+
+  if (existing) {
+    throw new Error("Ya existe una solicitud pendiente con este email");
+  }
+
+  const { data: result, error } = await supabase
+    .from("vendor_requests")
+    .insert({
+      business_name: data.business_name.trim(),
+      email: data.email.trim().toLowerCase(),
+      phone: data.phone?.trim() || null,
+      whatsapp: data.whatsapp?.trim() || null,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("submitVendorRequest error:", error);
+    throw new Error("Error al enviar solicitud. Intentá de nuevo.");
+  }
+
+  return result as VendorRequest;
 }
 
 // ─── Branch ───

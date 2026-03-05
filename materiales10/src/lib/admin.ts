@@ -1,5 +1,5 @@
 import { getSupabase } from "./supabase";
-import type { Vendor, Branch, Product } from "./database.types";
+import type { Vendor, Branch, Product, VendorRequest } from "./database.types";
 
 // Verificar si el usuario actual es admin
 export async function checkIsAdmin(): Promise<boolean> {
@@ -219,6 +219,94 @@ export async function fetchAllCategories() {
     return [];
   }
   return data ?? [];
+}
+
+// ─── Vendor Requests ───
+
+export async function fetchVendorRequests(): Promise<VendorRequest[]> {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("vendor_requests")
+    .select("*")
+    .order("status", { ascending: true }) // pending first
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("fetchVendorRequests error:", error);
+    return [];
+  }
+  return data ?? [];
+}
+
+export async function approveVendorRequest(requestId: string): Promise<void> {
+  const supabase = getSupabase();
+
+  // Get the request
+  const { data: request, error: fetchError } = await supabase
+    .from("vendor_requests")
+    .select("*")
+    .eq("id", requestId)
+    .single();
+
+  if (fetchError || !request) {
+    throw new Error("Solicitud no encontrada");
+  }
+
+  // Create vendor with the request data
+  const { error: vendorError } = await supabase
+    .from("vendors")
+    .insert({
+      name: request.business_name,
+      email: request.email,
+      phone: request.phone,
+      whatsapp: request.whatsapp,
+      owner_id: null,
+      is_active: true,
+    });
+
+  if (vendorError) {
+    console.error("approveVendorRequest vendor error:", vendorError);
+    if (vendorError.code === "23505") {
+      throw new Error("Ya existe un vendedor con este email");
+    }
+    throw new Error("Error al crear vendedor");
+  }
+
+  // Update request status
+  const { error: updateError } = await supabase
+    .from("vendor_requests")
+    .update({ status: "approved", updated_at: new Date().toISOString() })
+    .eq("id", requestId);
+
+  if (updateError) {
+    console.error("approveVendorRequest update error:", updateError);
+  }
+}
+
+export async function rejectVendorRequest(requestId: string, notes?: string): Promise<void> {
+  const supabase = getSupabase();
+  const { error } = await supabase
+    .from("vendor_requests")
+    .update({
+      status: "rejected",
+      admin_notes: notes || null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", requestId);
+
+  if (error) {
+    throw new Error("Error al rechazar solicitud");
+  }
+}
+
+export async function deleteVendorRequest(requestId: string): Promise<void> {
+  const supabase = getSupabase();
+  const { error } = await supabase
+    .from("vendor_requests")
+    .delete()
+    .eq("id", requestId);
+
+  if (error) throw error;
 }
 
 // ─── Validations ───
