@@ -112,23 +112,40 @@ export async function submitVendorRequest(data: {
     throw new Error("Ya existe una solicitud pendiente con este email");
   }
 
-  const { data: result, error } = await supabase
+  console.log("=== submitVendorRequest ===");
+  console.log("Data to insert:", {
+    business_name: data.business_name.trim(),
+    email: data.email.trim().toLowerCase(),
+    phone: data.phone?.trim() || null,
+    whatsapp: data.whatsapp?.trim() || null,
+  });
+
+  const { error } = await supabase
     .from("vendor_requests")
     .insert({
       business_name: data.business_name.trim(),
       email: data.email.trim().toLowerCase(),
       phone: data.phone?.trim() || null,
       whatsapp: data.whatsapp?.trim() || null,
-    })
-    .select()
-    .single();
+    });
 
   if (error) {
-    console.error("submitVendorRequest error:", error);
-    throw new Error("Error al enviar solicitud. Intentá de nuevo.");
+    console.error("submitVendorRequest error:", JSON.stringify(error, null, 2));
+    throw new Error(`Error al enviar solicitud: ${error.message}`);
   }
 
-  return result as VendorRequest;
+  // Return a placeholder since anon can't SELECT back
+  return {
+    id: "",
+    business_name: data.business_name.trim(),
+    email: data.email.trim().toLowerCase(),
+    phone: data.phone?.trim() || null,
+    whatsapp: data.whatsapp?.trim() || null,
+    status: "pending",
+    admin_notes: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  } as VendorRequest;
 }
 
 // ─── Branch ───
