@@ -187,10 +187,12 @@ export type VendorRequestStatus = "pending" | "approved" | "rejected";
 
 export interface VendorRequest {
   id: string;
+  contact_name: string | null;
   business_name: string;
   email: string;
   phone: string | null;
   whatsapp: string | null;
+  user_id: string | null;
   status: VendorRequestStatus;
   admin_notes: string | null;
   created_at: string;

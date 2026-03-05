@@ -26,8 +26,10 @@ export default function VendorPage() {
   const [authLoading, setAuthLoading] = useState(false);
 
   // Request form
+  const [reqContactName, setReqContactName] = useState("");
   const [reqName, setReqName] = useState("");
   const [reqEmail, setReqEmail] = useState("");
+  const [reqPassword, setReqPassword] = useState("");
   const [reqPhone, setReqPhone] = useState("");
   const [reqWhatsapp, setReqWhatsapp] = useState("");
   const [reqSent, setReqSent] = useState(false);
@@ -97,8 +99,10 @@ export default function VendorPage() {
     setReqLoading(true);
     try {
       await submitVendorRequest({
+        contact_name: reqContactName,
         business_name: reqName,
         email: reqEmail,
+        password: reqPassword,
         phone: reqPhone || undefined,
         whatsapp: reqWhatsapp || undefined,
       });
@@ -245,6 +249,17 @@ export default function VendorPage() {
 
               <form onSubmit={handleRequest} className="space-y-4 flex-1">
                 <div>
+                  <label className="block text-sm font-medium text-white mb-2">Nombre y apellido *</label>
+                  <input
+                    type="text"
+                    required
+                    value={reqContactName}
+                    onChange={(e) => setReqContactName(e.target.value)}
+                    placeholder="Ej: Juan Perez"
+                    className="input"
+                  />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-white mb-2">Nombre del negocio *</label>
                   <input
                     type="text"
@@ -263,6 +278,18 @@ export default function VendorPage() {
                     value={reqEmail}
                     onChange={(e) => setReqEmail(e.target.value)}
                     placeholder="tu@email.com"
+                    className="input"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">Contrasena *</label>
+                  <input
+                    type="password"
+                    required
+                    minLength={6}
+                    value={reqPassword}
+                    onChange={(e) => setReqPassword(e.target.value)}
+                    placeholder="Minimo 6 caracteres"
                     className="input"
                   />
                 </div>

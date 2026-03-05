@@ -119,6 +119,7 @@ export default function AdminRequestsPage() {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <p className="font-medium text-white">{req.business_name}</p>
+                  {req.contact_name && <p className="text-sm text-gray-300">Contacto: {req.contact_name}</p>}
                   <p className="text-sm text-gray-400 mt-1">{req.email}</p>
                   {req.phone && <p className="text-xs text-gray-400">Tel: {req.phone}</p>}
                   {req.whatsapp && <p className="text-xs text-gray-400">WA: {req.whatsapp}</p>}

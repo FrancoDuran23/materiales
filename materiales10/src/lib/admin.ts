@@ -252,7 +252,7 @@ export async function approveVendorRequest(requestId: string): Promise<void> {
     throw new Error("Solicitud no encontrada");
   }
 
-  // Create vendor with the request data
+  // Create vendor with the request data, linked to the auth user
   const { error: vendorError } = await supabase
     .from("vendors")
     .insert({
@@ -260,7 +260,7 @@ export async function approveVendorRequest(requestId: string): Promise<void> {
       email: request.email,
       phone: request.phone,
       whatsapp: request.whatsapp,
-      owner_id: null,
+      owner_id: request.user_id || null,
       is_active: true,
     });
 

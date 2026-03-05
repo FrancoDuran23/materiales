@@ -86,47 +86,53 @@ export async function createVendor(
 // ─── Vendor Requests ───
 
 export async function submitVendorRequest(data: {
+  contact_name: string;
   business_name: string;
   email: string;
+  password: string;
   phone?: string;
   whatsapp?: string;
 }): Promise<VendorRequest> {
+  if (!data.contact_name?.trim()) {
+    throw new Error("El nombre y apellido es obligatorio");
+  }
   if (!data.business_name?.trim()) {
     throw new Error("El nombre del negocio es obligatorio");
   }
   if (!data.email?.trim()) {
     throw new Error("El email es obligatorio");
   }
+  if (!data.password || data.password.length < 6) {
+    throw new Error("La contrasena debe tener al menos 6 caracteres");
+  }
 
   const supabase = getSupabase();
 
-  // Check if there's already a pending request with this email
-  const { data: existing } = await supabase
-    .from("vendor_requests")
-    .select("id, status")
-    .eq("email", data.email.trim().toLowerCase())
-    .eq("status", "pending")
-    .maybeSingle();
-
-  if (existing) {
-    throw new Error("Ya existe una solicitud pendiente con este email");
-  }
-
-  console.log("=== submitVendorRequest ===");
-  console.log("Data to insert:", {
-    business_name: data.business_name.trim(),
+  // 1. Crear cuenta auth
+  const { data: authData, error: authError } = await supabase.auth.signUp({
     email: data.email.trim().toLowerCase(),
-    phone: data.phone?.trim() || null,
-    whatsapp: data.whatsapp?.trim() || null,
+    password: data.password,
   });
 
+  if (authError) {
+    if (authError.message.includes("already registered")) {
+      throw new Error("Este email ya esta registrado. Usa 'Ya tengo cuenta' para ingresar.");
+    }
+    throw new Error(`Error al crear cuenta: ${authError.message}`);
+  }
+
+  const userId = authData.user?.id ?? null;
+
+  // 2. Insertar solicitud con el user_id
   const { error } = await supabase
     .from("vendor_requests")
     .insert({
+      contact_name: data.contact_name.trim(),
       business_name: data.business_name.trim(),
       email: data.email.trim().toLowerCase(),
       phone: data.phone?.trim() || null,
       whatsapp: data.whatsapp?.trim() || null,
+      user_id: userId,
     });
 
   if (error) {
@@ -134,13 +140,14 @@ export async function submitVendorRequest(data: {
     throw new Error(`Error al enviar solicitud: ${error.message}`);
   }
 
-  // Return a placeholder since anon can't SELECT back
   return {
     id: "",
+    contact_name: data.contact_name.trim(),
     business_name: data.business_name.trim(),
     email: data.email.trim().toLowerCase(),
     phone: data.phone?.trim() || null,
     whatsapp: data.whatsapp?.trim() || null,
+    user_id: userId,
     status: "pending",
     admin_notes: null,
     created_at: new Date().toISOString(),
