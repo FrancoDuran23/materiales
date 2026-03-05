@@ -51,9 +51,9 @@ export async function fetchOfferById(offerId: string): Promise<SearchOfferResult
   const { data, error } = await supabase
     .from("offers")
     .select(`
-      id, price, stock_status,
+      id, price, stock_status, image_url,
       product:products(name, unit, category:categories(slug)),
-      branch:branches(name, address, city, phone, whatsapp, lat, lng,
+      branch:branches(name, address, city, phone, whatsapp, lat, lng, free_shipping, free_shipping_radius_km,
         vendor:vendors(name)
       )
     `)
@@ -84,7 +84,7 @@ export async function fetchOfferById(offerId: string): Promise<SearchOfferResult
     offer_id: data.id,
     product_name: p?.name ?? "",
     product_unit: p?.unit ?? "",
-    product_image_url: null,
+    product_image_url: (data as Record<string, unknown>).image_url as string | null,
     category_slug: p?.category?.slug ?? "",
     price: data.price,
     stock_status: data.stock_status,
