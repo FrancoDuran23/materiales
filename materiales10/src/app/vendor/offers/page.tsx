@@ -77,9 +77,17 @@ export default function VendorOffersPage() {
     init();
   }, [router]);
 
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(productSearch.toLowerCase())
-  );
+  // Search products from DB when typing
+  useEffect(() => {
+    if (!productSearch.trim() || selectedProduct) return;
+    const timeout = setTimeout(async () => {
+      const results = await fetchProducts(productSearch);
+      setProducts(results);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [productSearch, selectedProduct]);
+
+  const filteredProducts = products;
 
   function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
