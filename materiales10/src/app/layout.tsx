@@ -91,21 +91,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span className="text-xl font-bold text-white">Construct</span>
               <span className="text-xl font-bold text-amber-400">NOA</span>
             </Link>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <Link
                 href="/vendor"
-                className="text-sm text-gray-400 hover:text-white transition-colors"
+                className="text-xs sm:text-sm text-gray-400 hover:text-white transition-colors whitespace-nowrap"
               >
-                Soy corralón
+                Soy corralon
               </Link>
               <Link
                 href="/search"
-                className="btn-primary !py-2 !px-4 text-sm"
+                className="btn-primary !py-2 !px-3 sm:!px-4 text-xs sm:text-sm"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                Buscar materiales
+                <span className="hidden sm:inline">Buscar materiales</span>
+                <span className="sm:hidden">Buscar</span>
               </Link>
             </div>
           </div>
