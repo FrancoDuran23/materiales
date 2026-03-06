@@ -127,7 +127,7 @@ export default function OfferDetailPage() {
           )}
           {offer.branch_whatsapp && (
             <a
-              href={`https://wa.me/${offer.branch_whatsapp.replace(/\D/g, "")}`}
+              href={`https://wa.me/${offer.branch_whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola! Vi "${offer.product_name}" a $${offer.price.toLocaleString("es-AR")} en ConstructNOA y quería consultar disponibilidad. Gracias!`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-green-400 hover:underline"
