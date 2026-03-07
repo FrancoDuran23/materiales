@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Spinner, OfferCard, LocationPicker, CategoryIcon } from "@/components";
 import { searchOffers, CATEGORIES } from "@/lib";
@@ -20,30 +20,48 @@ function SearchContent() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
-  const doSearch = useCallback(
-    async (q: string) => {
-      setLoading(true);
-      setSearched(true);
+  // Use refs to always have current values in callbacks
+  const locationRef = useRef(location);
+  const categoryRef = useRef(category);
+  const sortModeRef = useRef(sortMode);
+  const queryRef = useRef(query);
 
-      const data = await searchOffers({
-        q,
-        buyerLat: location?.lat,
-        buyerLng: location?.lng,
-        categorySlug: category || null,
-        sortMode,
-      });
+  locationRef.current = location;
+  categoryRef.current = category;
+  sortModeRef.current = sortMode;
+  queryRef.current = query;
 
-      setResults(data);
-      setLoading(false);
-    },
-    [category, sortMode, location]
-  );
+  const doSearch = useCallback(async (q?: string) => {
+    const searchQuery = q ?? queryRef.current;
+    setLoading(true);
+    setSearched(true);
 
-  useEffect(() => {
-    if (initialQuery || initialCategory) {
-      doSearch(initialQuery);
-    }
+    const loc = locationRef.current;
+    const data = await searchOffers({
+      q: searchQuery,
+      buyerLat: loc?.lat,
+      buyerLng: loc?.lng,
+      categorySlug: categoryRef.current || null,
+      sortMode: sortModeRef.current,
+    });
+
+    setResults(data);
+    setLoading(false);
   }, []);
+
+  // Initial search only after location has had a chance to load
+  const initialSearchDone = useRef(false);
+  useEffect(() => {
+    if (initialSearchDone.current) return;
+    if (initialQuery || initialCategory) {
+      // Small delay to let LocationPicker load saved location
+      const timeout = setTimeout(() => {
+        initialSearchDone.current = true;
+        doSearch(initialQuery);
+      }, 150);
+      return () => clearTimeout(timeout);
+    }
+  }, [initialQuery, initialCategory, doSearch]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -51,22 +69,25 @@ function SearchContent() {
     if (query) params.set("q", query);
     if (category) params.set("category", category);
     router.replace(`/search?${params.toString()}`);
+    initialSearchDone.current = true;
     doSearch(query);
   }
 
   // Re-search when location changes
   useEffect(() => {
-    if (searched && location) doSearch(query);
+    if (searched) doSearch();
   }, [location]);
 
   function handleSortChange(mode: "price" | "distance") {
     setSortMode(mode);
-    if (searched) doSearch(query);
+    sortModeRef.current = mode;
+    if (searched) doSearch();
   }
 
   function handleCategoryChange(slug: string) {
     setCategory(slug);
-    if (searched) setTimeout(() => doSearch(query), 0);
+    categoryRef.current = slug;
+    if (searched) doSearch();
   }
 
   return (
@@ -94,6 +115,13 @@ function SearchContent() {
 
       {/* Location */}
       <LocationPicker onLocationChange={setLocation} />
+
+      {/* Hint when no location */}
+      {!location && searched && (
+        <p className="text-xs text-gray-500 italic">
+          Compartí tu ubicación para ver la distancia a cada sucursal
+        </p>
+      )}
 
       {/* Category chips */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
@@ -127,7 +155,7 @@ function SearchContent() {
                 : "bg-gray-900 text-gray-400 hover:text-white"
             }`}
           >
-            Más barato
+            Mas barato
           </button>
           <button
             type="button"
@@ -139,7 +167,7 @@ function SearchContent() {
                 : "bg-gray-900 text-gray-400 hover:text-white"
             } disabled:opacity-40 disabled:cursor-not-allowed`}
           >
-            Más cercano
+            Mas cercano
           </button>
         </div>
         {searched && (
@@ -160,7 +188,7 @@ function SearchContent() {
             </svg>
           </div>
           <p className="text-lg font-medium text-white">No se encontraron ofertas</p>
-          <p className="text-sm text-gray-400 mt-1">Probá con otro término o categoría</p>
+          <p className="text-sm text-gray-400 mt-1">Proba con otro termino o categoria</p>
         </div>
       )}
 
