@@ -85,30 +85,44 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/icon-192.svg" />
       </head>
       <body className="min-h-screen flex flex-col bg-black text-white">
-        {/* Header oscuro */}
-        <header className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-gray-800">
-          <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 group">
-              <Image src="/images/logotipo.png" alt="ConstructNOA" width={40} height={40} className="h-9 w-auto" priority />
-              <span className="text-xl font-bold text-white">Construct</span>
-              <span className="text-xl font-bold text-amber-400">NOA</span>
+        {/* Header */}
+        <header className="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-white/[0.06]">
+          <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2 shrink-0">
+              <Image src="/images/logotipo.png" alt="ConstructNOA" width={36} height={36} className="h-8 w-auto sm:h-9" priority />
+              <div className="flex items-baseline gap-0">
+                <span className="text-lg sm:text-xl font-bold text-white leading-none">Construct</span>
+                <span className="text-lg sm:text-xl font-bold text-amber-400 leading-none">NOA</span>
+              </div>
             </Link>
-            <div className="flex items-center gap-2 sm:gap-4">
+
+            {/* Actions */}
+            <div className="flex items-center gap-3">
               <Link
                 href="/vendor"
-                className="text-xs sm:text-sm text-gray-400 hover:text-white transition-colors whitespace-nowrap"
+                className="hidden sm:inline-flex text-sm text-gray-400 hover:text-white transition-colors"
               >
-                Soy corralon
+                Soy corralón
               </Link>
               <Link
                 href="/search"
-                className="btn-primary !py-2 !px-3 sm:!px-4 text-xs sm:text-sm"
+                className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-black px-4 py-2 rounded-xl font-semibold text-sm transition-all active:scale-[0.97]"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <span className="hidden sm:inline">Buscar materiales</span>
-                <span className="sm:hidden">Buscar</span>
+                <span className="hidden sm:inline">Buscar</span>
+              </Link>
+              {/* Mobile vendor link */}
+              <Link
+                href="/vendor"
+                className="sm:hidden inline-flex items-center justify-center w-9 h-9 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all"
+                title="Soy corralón"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </Link>
             </div>
           </div>
@@ -116,22 +130,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-6">{children}</main>
 
-        <footer className="border-t border-gray-800 bg-black">
-          <div className="max-w-6xl mx-auto px-4 py-6">
+        <footer className="border-t border-white/[0.06] bg-black">
+          <div className="max-w-6xl mx-auto px-4 py-8">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <Link href="/" className="flex items-center gap-2">
-                <Image src="/images/logotipo.png" alt="ConstructNOA" width={32} height={32} className="h-7 w-auto" />
-                <span className="font-bold text-white">Construct</span>
-                <span className="font-bold text-amber-400">NOA</span>
+                <Image src="/images/logotipo.png" alt="ConstructNOA" width={28} height={28} className="h-6 w-auto" />
+                <span className="font-bold text-white text-sm">Construct</span>
+                <span className="font-bold text-amber-400 text-sm">NOA</span>
               </Link>
-              <p className="text-sm text-gray-400">
-                Hecho para ahorrar tiempo en obra.
+              <p className="text-xs text-gray-500">
+                Hecho en el NOA, para el NOA.
               </p>
-              <div className="flex items-center gap-4 text-sm">
-                <Link href="/vendor" className="text-gray-400 hover:text-amber-400 transition-colors">
+              <div className="flex items-center gap-4 text-xs">
+                <Link href="/vendor" className="text-gray-500 hover:text-amber-400 transition-colors">
                   Vendedores
                 </Link>
-                <Link href="/search" className="text-gray-400 hover:text-amber-400 transition-colors">
+                <Link href="/search" className="text-gray-500 hover:text-amber-400 transition-colors">
                   Buscar
                 </Link>
               </div>

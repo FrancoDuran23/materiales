@@ -8,6 +8,7 @@ export const CATEGORIES: Category[] = [
   { id: "4", name: "Gas", slug: "gas", icon: "🔥" },
   { id: "5", name: "Ferretería", slug: "ferreteria", icon: "🔩" },
   { id: "6", name: "Herrajes", slug: "herrajes", icon: "🚪" },
+  { id: "7", name: "Pintura", slug: "pinturas", icon: "🎨" },
 ];
 
 export const STOCK_LABELS: Record<string, string> = {
