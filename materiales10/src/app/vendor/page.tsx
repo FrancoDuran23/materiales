@@ -155,6 +155,10 @@ export default function VendorPage() {
   async function handleSaveBranch(e: FormEvent) {
     e.preventDefault();
     if (!vendor) return;
+    if (!branchLat || !branchLng) {
+      setToast({ msg: "Selecciona la direccion desde Google Maps para fijar la ubicacion", type: "error" });
+      return;
+    }
     setSavingBranch(true);
     try {
       if (editingBranchId) {
@@ -528,11 +532,31 @@ export default function VendorPage() {
                       <label className="block text-sm font-medium text-white mb-1">Direccion *</label>
                       <AddressAutocomplete
                         value={branchAddress}
-                        onChange={setBranchAddress}
+                        onChange={(val) => {
+                          setBranchAddress(val);
+                          // Si el usuario edita el texto a mano, limpiar lat/lng para forzar nueva seleccion
+                          setBranchLat("");
+                          setBranchLng("");
+                        }}
                         onSelect={handleAddressSelect}
                         placeholder="Busca la direccion en Google Maps..."
                         required
                       />
+                      {branchLat && branchLng ? (
+                        <p className="text-xs text-emerald-400 mt-1 flex items-center gap-1">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Ubicacion detectada ({branchLat}, {branchLng})
+                        </p>
+                      ) : branchAddress ? (
+                        <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                          </svg>
+                          Selecciona una direccion de la lista de Google Maps para fijar la ubicacion
+                        </p>
+                      ) : null}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-white mb-1">Ciudad *</label>
@@ -625,6 +649,21 @@ export default function VendorPage() {
                         </div>
                         <p className="text-sm text-gray-400">{b.address}</p>
                         <p className="text-xs text-gray-400">{b.city}, {b.province}</p>
+                        {b.lat && b.lng ? (
+                          <p className="text-xs text-emerald-400 mt-0.5 flex items-center gap-1">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            </svg>
+                            Ubicacion OK
+                          </p>
+                        ) : (
+                          <p className="text-xs text-red-400 mt-0.5 flex items-center gap-1 font-medium">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                            Sin ubicacion - edita para agregar
+                          </p>
+                        )}
                         {b.free_shipping && (
                           <p className="text-xs text-green-400 font-medium mt-0.5">
                             Envio gratis{b.free_shipping_radius_km ? ` hasta ${b.free_shipping_radius_km} km` : ""}

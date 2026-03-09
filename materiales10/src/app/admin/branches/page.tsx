@@ -90,6 +90,10 @@ export default function AdminBranchesPage() {
   async function handleSave(e: FormEvent) {
     e.preventDefault();
     if (!vendorId || !name.trim() || !address.trim() || !city.trim()) return;
+    if (!lat || !lng) {
+      setToast({ msg: "Selecciona la direccion desde Google Maps para fijar la ubicacion", type: "error" });
+      return;
+    }
 
     setSaving(true);
     try {
@@ -241,11 +245,16 @@ export default function AdminBranchesPage() {
             <label className="block text-sm font-medium text-white mb-2">Dirección *</label>
             <AddressAutocomplete
               value={address}
-              onChange={setAddress}
+              onChange={(val) => { setAddress(val); setLat(""); setLng(""); }}
               onSelect={handleAddressSelect}
               placeholder="Buscá la dirección en Google Maps..."
               required
             />
+            {lat && lng ? (
+              <p className="text-xs text-emerald-400 mt-1">Ubicacion detectada ({lat}, {lng})</p>
+            ) : address ? (
+              <p className="text-xs text-red-400 mt-1">Selecciona una direccion de Google Maps</p>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -391,6 +400,11 @@ export default function AdminBranchesPage() {
                   <p className="text-xs text-gray-400 mt-1">
                     {b.address}, {b.city}, {b.province}
                   </p>
+                  {b.lat && b.lng ? (
+                    <p className="text-xs text-emerald-400">Ubicacion OK ({b.lat}, {b.lng})</p>
+                  ) : (
+                    <p className="text-xs text-red-400 font-medium">Sin ubicacion - los clientes no veran la distancia</p>
+                  )}
                   {b.free_shipping && (
                     <p className="text-xs text-green-400 font-medium">
                       Envío gratis{b.free_shipping_radius_km ? ` hasta ${b.free_shipping_radius_km} km` : ""}
