@@ -345,12 +345,7 @@ export default function OfferDetailPage() {
               Más de {offer.vendor_name.split(" ")[0]}
             </h2>
             <div className="flex-1 h-px bg-white/[0.06]" />
-            <Link
-              href={`/search?vendor=${encodeURIComponent(offer.vendor_name)}`}
-              className="text-xs text-amber-400 hover:underline"
-            >
-              Ver todo &rarr;
-            </Link>
+            <span className="text-xs text-gray-600">{crossSell.length} productos</span>
           </div>
 
           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4">
