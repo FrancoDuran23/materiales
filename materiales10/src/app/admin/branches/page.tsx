@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, useRef, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
@@ -79,7 +79,10 @@ export default function AdminBranchesPage() {
     setFreeShippingRadius("");
   }
 
+  const justSelectedRef = useRef(false);
+
   function handleAddressSelect(result: AddressResult) {
+    justSelectedRef.current = true;
     setAddress(result.address);
     if (result.city) setCity(result.city);
     if (result.province) setProvince(result.province);
@@ -245,7 +248,15 @@ export default function AdminBranchesPage() {
             <label className="block text-sm font-medium text-white mb-2">Dirección *</label>
             <AddressAutocomplete
               value={address}
-              onChange={(val) => { setAddress(val); setLat(""); setLng(""); }}
+              onChange={(val) => {
+                setAddress(val);
+                if (justSelectedRef.current) {
+                  justSelectedRef.current = false;
+                } else {
+                  setLat("");
+                  setLng("");
+                }
+              }}
               onSelect={handleAddressSelect}
               placeholder="Buscá la dirección en Google Maps..."
               required
