@@ -235,3 +235,105 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Hero geometric pattern */
+.hero-geo {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+.hero-geo::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 70vw;
+  height: 140%;
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent,
+    transparent 18px,
+    rgba(251, 191, 36, 0.07) 18px,
+    rgba(251, 191, 36, 0.07) 20px
+  );
+  transform: skewX(-15deg);
+}
+
+/* Floating geometric accents */
+.geo-diamond {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border: 2px solid rgba(251, 191, 36, 0.15);
+  transform: rotate(45deg);
+}
+
+/* Benefit card decorative line */
+.benefit-card {
+  position: relative;
+}
+.benefit-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: #FBBF24;
+  border-radius: 2px;
+}
+.benefit-card-right::before {
+  left: auto;
+  right: 0;
+}
+
+/* Gradient border for CTA */
+.gradient-border {
+  position: relative;
+  background: #0D1117;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: linear-gradient(135deg, #FBBF24, #F59E0B, #D97706, #FBBF24);
+  border-radius: 16px;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* Sidebar nav active item */
+.sidebar-active {
+  border-left: 3px solid #FBBF24;
+  background: rgba(251, 191, 36, 0.08);
+}
+
+/* Result row hover effect */
+.result-row {
+  transition: all 0.15s ease;
+  border-left: 3px solid transparent;
+}
+.result-row:hover {
+  border-left-color: #FBBF24;
+}
+
+/* Sparkline bars */
+.sparkline-bar {
+  display: inline-block;
+  width: 4px;
+  border-radius: 2px;
+  background: rgba(251, 191, 36, 0.3);
+}
+
+/* Fade up animation */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fadeUp 0.6s ease forwards;
+}
