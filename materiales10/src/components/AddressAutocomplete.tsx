@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState } from "react";
 
 export interface AddressResult {
   address: string;
@@ -38,7 +38,7 @@ function loadGoogleMaps(): Promise<void> {
       return;
     }
     const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&language=es`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&language=es&loading=async`;
     script.async = true;
     script.onload = () => {
       googleMapsLoaded = true;
@@ -49,50 +49,31 @@ function loadGoogleMaps(): Promise<void> {
   });
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 function extractComponent(
-  components: google.maps.GeocoderAddressComponent[],
-  type: string
+  components: any[],
+  type: string,
+  field: "long_name" | "longText" = "long_name"
 ): string {
-  return components.find((c) => c.types.includes(type))?.long_name ?? "";
+  const comp = components.find((c: any) => c.types?.includes(type));
+  if (!comp) return "";
+  return comp[field] ?? comp.long_name ?? comp.longText ?? "";
 }
 
 export default function AddressAutocomplete({
   value,
   onChange,
   onSelect,
-  placeholder = "Buscá una dirección...",
+  placeholder = "Busca una direccion...",
   required = false,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const autocompleteRef = useRef<any>(null);
   const [ready, setReady] = useState(false);
-
-  const handlePlaceSelect = useCallback(() => {
-    const place = autocompleteRef.current?.getPlace();
-    if (!place?.geometry?.location) return;
-
-    const lat = place.geometry.location.lat();
-    const lng = place.geometry.location.lng();
-    const components = place.address_components ?? [];
-
-    // Extract street address
-    const streetNumber = extractComponent(components, "street_number");
-    const route = extractComponent(components, "route");
-    const address = streetNumber ? `${route} ${streetNumber}` : route || place.name || "";
-
-    // Extract city - try locality first, then sublocality, then admin_area_level_2
-    const city =
-      extractComponent(components, "locality") ||
-      extractComponent(components, "sublocality_level_1") ||
-      extractComponent(components, "administrative_area_level_2") ||
-      "";
-
-    // Extract province
-    const province = extractComponent(components, "administrative_area_level_1") || "";
-
-    onChange(place.formatted_address ?? address);
-    onSelect({ address, city, province, lat, lng });
-  }, [onChange, onSelect]);
+  const onSelectRef = useRef(onSelect);
+  const onChangeRef = useRef(onChange);
+  onSelectRef.current = onSelect;
+  onChangeRef.current = onChange;
 
   useEffect(() => {
     loadGoogleMaps().then(() => setReady(true));
@@ -101,30 +82,110 @@ export default function AddressAutocomplete({
   useEffect(() => {
     if (!ready || !inputRef.current || autocompleteRef.current) return;
 
-    const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
-      componentRestrictions: { country: "ar" },
-      fields: ["geometry", "address_components", "formatted_address", "name"],
-      types: ["address"],
-    });
+    const g = window.google as any;
+    if (!g?.maps?.places) return;
 
-    autocomplete.addListener("place_changed", handlePlaceSelect);
-    autocompleteRef.current = autocomplete;
+    // Try new PlaceAutocompleteElement first
+    if (g.maps.places.PlaceAutocompleteElement) {
+      try {
+        const el = new g.maps.places.PlaceAutocompleteElement({
+          componentRestrictions: { country: "ar" },
+          types: ["address"],
+        });
 
-    return () => {
-      google.maps.event.clearInstanceListeners(autocomplete);
-    };
-  }, [ready, handlePlaceSelect]);
+        // Style the element to match our input
+        el.style.width = "100%";
+
+        el.addEventListener("gmp-placeselect", async (event: any) => {
+          const place = event.place;
+          if (!place) return;
+
+          await place.fetchFields({
+            fields: ["displayName", "formattedAddress", "location", "addressComponents"],
+          });
+
+          const lat = place.location?.lat();
+          const lng = place.location?.lng();
+          if (lat == null || lng == null) return;
+
+          const components = place.addressComponents ?? [];
+          const streetNumber = extractComponent(components, "street_number", "longText");
+          const route = extractComponent(components, "route", "longText");
+          const address = streetNumber ? `${route} ${streetNumber}` : route || place.displayName || "";
+          const city =
+            extractComponent(components, "locality", "longText") ||
+            extractComponent(components, "sublocality_level_1", "longText") ||
+            extractComponent(components, "administrative_area_level_2", "longText") ||
+            "";
+          const province = extractComponent(components, "administrative_area_level_1", "longText") || "";
+
+          onChangeRef.current(place.formattedAddress ?? address);
+          onSelectRef.current({ address, city, province, lat, lng });
+        });
+
+        // Replace input with the Google element
+        const container = inputRef.current.parentElement;
+        if (container) {
+          inputRef.current.style.display = "none";
+          container.appendChild(el);
+          autocompleteRef.current = el;
+        }
+        return;
+      } catch {
+        // Fall through to legacy
+      }
+    }
+
+    // Legacy Autocomplete fallback
+    try {
+      const autocomplete = new g.maps.places.Autocomplete(inputRef.current, {
+        componentRestrictions: { country: "ar" },
+        fields: ["geometry", "address_components", "formatted_address", "name"],
+        types: ["address"],
+      });
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        if (!place?.geometry?.location) return;
+
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        const components = place.address_components ?? [];
+
+        const streetNumber = extractComponent(components, "street_number");
+        const route = extractComponent(components, "route");
+        const address = streetNumber ? `${route} ${streetNumber}` : route || place.name || "";
+        const city =
+          extractComponent(components, "locality") ||
+          extractComponent(components, "sublocality_level_1") ||
+          extractComponent(components, "administrative_area_level_2") ||
+          "";
+        const province = extractComponent(components, "administrative_area_level_1") || "";
+
+        onChangeRef.current(place.formatted_address ?? address);
+        onSelectRef.current({ address, city, province, lat, lng });
+      });
+
+      autocompleteRef.current = autocomplete;
+    } catch {
+      // Both APIs failed
+      console.error("Google Maps Places API not available");
+    }
+  }, [ready]);
 
   return (
-    <input
-      ref={inputRef}
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={ready ? placeholder : "Cargando mapa..."}
-      required={required}
-      className="input"
-      disabled={!ready}
-    />
+    <div className="relative google-autocomplete-container">
+      <input
+        ref={inputRef}
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={ready ? placeholder : "Cargando mapa..."}
+        required={required}
+        className="input"
+        disabled={!ready}
+      />
+    </div>
   );
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
