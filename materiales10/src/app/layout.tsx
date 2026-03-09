@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -87,9 +88,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Header oscuro */}
         <header className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-gray-800">
           <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 group">
-              <span className="text-xl font-bold text-white">Construct</span>
-              <span className="text-xl font-bold text-amber-400">NOA</span>
+            <Link href="/" className="flex items-center group">
+              <Image src="/images/logotipo.png" alt="ConstructNOA" width={180} height={40} className="h-10 w-auto" priority />
             </Link>
             <div className="flex items-center gap-2 sm:gap-4">
               <Link
@@ -117,9 +117,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="border-t border-gray-800 bg-black">
           <div className="max-w-6xl mx-auto px-4 py-6">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <Link href="/" className="flex items-center gap-2">
-                <span className="font-bold text-white">Construct</span>
-                <span className="font-bold text-amber-400">NOA</span>
+              <Link href="/" className="flex items-center">
+                <Image src="/images/logotipo.png" alt="ConstructNOA" width={140} height={32} className="h-8 w-auto" />
               </Link>
               <p className="text-sm text-gray-400">
                 Hecho para ahorrar tiempo en obra.

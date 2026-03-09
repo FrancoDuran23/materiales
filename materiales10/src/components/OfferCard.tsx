@@ -6,7 +6,7 @@ import { STOCK_LABELS } from "@/lib/constants";
 import { formatDistance, getGoogleMapsUrl } from "@/lib/geo";
 import type { SearchOfferResult } from "@/lib/database.types";
 
-const DEFAULT_PRODUCT_IMAGE = "/images/default-product.svg";
+const DEFAULT_PRODUCT_IMAGE = "/images/logotipo.png";
 
 interface Props {
   offer: SearchOfferResult;

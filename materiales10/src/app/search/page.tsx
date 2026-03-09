@@ -332,7 +332,7 @@ function SearchContent() {
                 <div className="flex items-center gap-4">
                   {/* Product image */}
                   <div className="w-12 h-12 rounded-lg bg-gray-800 flex-shrink-0 overflow-hidden flex items-center justify-center">
-                    <Image src={offer.product_image_url || "/favicon.svg"} alt={offer.product_name} width={48} height={48} className="object-contain w-full h-full p-1" />
+                    <Image src={offer.product_image_url || "/images/logotipo.png"} alt={offer.product_name} width={48} height={48} className="object-contain w-full h-full p-1" />
                   </div>
                   {/* Product info */}
                   <div className="flex-1 min-w-0">
