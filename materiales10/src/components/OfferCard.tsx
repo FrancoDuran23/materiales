@@ -65,9 +65,16 @@ export default function OfferCard({ offer }: Props) {
             </span>
             <span className="text-xs text-gray-500">/{offer.product_unit}</span>
           </div>
-          <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${stockColor}`}>
-            {stockLabel}
-          </span>
+          <div className="flex items-center gap-2">
+            {offer.offer_updated_at && (
+              <span className="text-[10px] text-gray-600">
+                Act. {new Date(offer.offer_updated_at).toLocaleDateString("es-AR", { day: "numeric", month: "short" })}
+              </span>
+            )}
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${stockColor}`}>
+              {stockLabel}
+            </span>
+          </div>
         </div>
       </div>
 

@@ -329,35 +329,35 @@ function SearchContent() {
           {results.map((offer) => (
             <Link key={offer.offer_id} href={`/offer/${offer.offer_id}`}>
               <div className="result-row bg-[#0D1117] rounded-xl p-4 border border-gray-800/50">
-                <div className="flex items-center gap-4">
+                <div className="flex items-start gap-3">
                   {/* Product image */}
                   <div className="w-12 h-12 rounded-lg bg-gray-800 flex-shrink-0 overflow-hidden flex items-center justify-center">
                     <Image src={offer.product_image_url || "/images/logotipo.png"} alt={offer.product_name} width={48} height={48} className="object-contain w-full h-full p-1" />
                   </div>
-                  {/* Product info */}
+                  {/* Product info + price */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-white text-sm truncate">{offer.product_name}</h3>
-                    <p className="text-xs text-gray-400 truncate">{offer.vendor_name} — {offer.branch_name}</p>
+                    <h3 className="font-semibold text-white text-sm leading-snug">{offer.product_name}</h3>
+                    <p className="text-xs text-gray-400 truncate mt-0.5">{offer.vendor_name} — {offer.branch_name}</p>
+                    {/* Price + meta row */}
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
+                      <span className="text-lg font-bold text-amber-400">${offer.price.toLocaleString("es-AR")}</span>
+                      <span className="text-xs text-gray-500">/{offer.product_unit}</span>
+                      <span className={getBadgeClass(offer.stock_status)}>
+                        {STOCK_LABELS[offer.stock_status]}
+                      </span>
+                      {offer.distance_km !== null && (
+                        <span className="text-xs text-gray-400">{formatDistance(offer.distance_km)}</span>
+                      )}
+                      {offer.branch_free_shipping && offer.distance_km !== null && offer.branch_free_shipping_radius_km !== null && offer.distance_km <= offer.branch_free_shipping_radius_km && (
+                        <span className="text-[10px] text-emerald-400 font-semibold">Envío gratis</span>
+                      )}
+                      {offer.offer_updated_at && (
+                        <span className="text-[10px] text-gray-600 ml-auto">
+                          Act. {new Date(offer.offer_updated_at).toLocaleDateString("es-AR", { day: "numeric", month: "short" })}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  {/* Price */}
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-lg font-bold text-amber-400">${offer.price.toLocaleString("es-AR")}</p>
-                    <p className="text-xs text-gray-400">/{offer.product_unit}</p>
-                  </div>
-                  {/* Free shipping badge */}
-                  {offer.branch_free_shipping && offer.distance_km !== null && offer.branch_free_shipping_radius_km !== null && offer.distance_km <= offer.branch_free_shipping_radius_km && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold flex-shrink-0">
-                      🚚 Envío gratis
-                    </span>
-                  )}
-                  {/* Distance */}
-                  {offer.distance_km !== null && (
-                    <span className="text-xs text-gray-400 flex-shrink-0">{formatDistance(offer.distance_km)}</span>
-                  )}
-                  {/* Stock badge */}
-                  <span className={getBadgeClass(offer.stock_status)}>
-                    {STOCK_LABELS[offer.stock_status]}
-                  </span>
                 </div>
               </div>
             </Link>

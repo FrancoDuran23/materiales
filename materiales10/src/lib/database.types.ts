@@ -131,6 +131,7 @@ export interface SearchOfferResult {
   distance_km: number | null;
   branch_free_shipping: boolean;
   branch_free_shipping_radius_km: number | null;
+  offer_updated_at: string | null;
 }
 
 export interface Category {

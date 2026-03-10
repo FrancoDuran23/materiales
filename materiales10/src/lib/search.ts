@@ -57,7 +57,7 @@ export async function fetchOfferById(offerId: string): Promise<OfferDetail | nul
   const { data, error } = await supabase
     .from("offers")
     .select(`
-      id, price, stock_status, image_url, product_id, branch_id,
+      id, price, stock_status, image_url, product_id, branch_id, updated_at,
       product:products(name, unit, image_url, category:categories(slug, name)),
       branch:branches(name, address, city, phone, whatsapp, lat, lng, free_shipping, free_shipping_radius_km,
         vendor:vendors(name)
@@ -110,6 +110,7 @@ export async function fetchOfferById(offerId: string): Promise<OfferDetail | nul
     distance_km: null,
     branch_free_shipping: b?.free_shipping ?? false,
     branch_free_shipping_radius_km: b?.free_shipping_radius_km ?? null,
+    offer_updated_at: (data as Record<string, unknown>).updated_at as string | null,
   };
 }
 
@@ -124,7 +125,7 @@ export async function fetchSameProductOffers(
   const { data, error } = await supabase
     .from("offers")
     .select(`
-      id, price, stock_status, image_url, product_id,
+      id, price, stock_status, image_url, product_id, updated_at,
       product:products(name, unit, image_url, category:categories(slug)),
       branch:branches(name, address, city, phone, whatsapp, lat, lng, free_shipping, free_shipping_radius_km,
         vendor:vendors(name)
@@ -166,6 +167,7 @@ export async function fetchSameProductOffers(
       distance_km: null,
       branch_free_shipping: b?.free_shipping ?? false,
       branch_free_shipping_radius_km: b?.free_shipping_radius_km ?? null,
+      offer_updated_at: (row as Record<string, unknown>).updated_at as string | null,
     };
   });
 }
@@ -181,7 +183,7 @@ export async function fetchBranchOffers(
   const { data, error } = await supabase
     .from("offers")
     .select(`
-      id, price, stock_status, image_url,
+      id, price, stock_status, image_url, updated_at,
       product:products(name, unit, image_url, category:categories(slug)),
       branch:branches(name, address, city, phone, whatsapp, lat, lng, free_shipping, free_shipping_radius_km,
         vendor:vendors(name)
@@ -223,6 +225,7 @@ export async function fetchBranchOffers(
       distance_km: null,
       branch_free_shipping: b?.free_shipping ?? false,
       branch_free_shipping_radius_km: b?.free_shipping_radius_km ?? null,
+      offer_updated_at: (row as Record<string, unknown>).updated_at as string | null,
     };
   });
 }

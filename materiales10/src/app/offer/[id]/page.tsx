@@ -134,11 +134,18 @@ export default function OfferDetailPage() {
             </span>
           </div>
 
-          <div className="flex items-baseline gap-2 border-t border-white/[0.06] pt-4">
-            <span className="text-3xl font-black text-amber-400 tracking-tight">
-              ${offer.price.toLocaleString("es-AR")}
-            </span>
-            <span className="text-sm text-gray-500">/{offer.product_unit}</span>
+          <div className="flex items-center justify-between border-t border-white/[0.06] pt-4">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-black text-amber-400 tracking-tight">
+                ${offer.price.toLocaleString("es-AR")}
+              </span>
+              <span className="text-sm text-gray-500">/{offer.product_unit}</span>
+            </div>
+            {offer.offer_updated_at && (
+              <span className="text-[11px] text-gray-500 bg-white/[0.04] px-2.5 py-1 rounded-lg">
+                Actualizado {new Date(offer.offer_updated_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}
+              </span>
+            )}
           </div>
         </div>
       </div>
