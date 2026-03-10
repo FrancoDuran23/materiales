@@ -353,7 +353,7 @@ function SearchContent() {
                       )}
                       {offer.offer_updated_at && (
                         <span className="text-[10px] text-gray-600 ml-auto">
-                          Act. {new Date(offer.offer_updated_at).toLocaleDateString("es-AR", { day: "numeric", month: "short" })}
+                          Act. {new Date(offer.offer_updated_at).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })}
                         </span>
                       )}
                     </div>

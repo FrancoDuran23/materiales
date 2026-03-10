@@ -22,18 +22,20 @@ export default function HomePage() {
         {/* Hero content */}
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center py-20">
           <p className="section-title mb-6">
-            Materiales de construccion al mejor precio
+            Compará precios de corralones en Jujuy y Salta
           </p>
 
           <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white leading-[0.95] tracking-tight">
-            Tu obra,
+            Encontrá el
             <br />
-            <span className="text-amber-400">mejores</span> precios
+            <span className="text-amber-400">mejor precio</span>
+            <br />
+            para tu obra
           </h1>
 
           <p className="text-gray-400 mt-6 text-lg sm:text-xl max-w-xl mx-auto">
-            Compara precios de corralones en el NOA. Encontra lo que necesitas
-            para tu obra en segundos.
+            Buscá cualquier material, compará precios entre corralones de tu
+            zona y contactá directo por WhatsApp. Gratis, sin registro.
           </p>
 
           {/* Search bar */}
@@ -79,7 +81,7 @@ export default function HomePage() {
                       d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                     />
                   </svg>
-                  Ubicacion
+                  Ubicación
                 </div>
               </div>
 
@@ -88,6 +90,15 @@ export default function HomePage() {
               </div>
             </div>
           </Link>
+
+          {/* Stats banner */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-sm text-gray-500">
+            <span><span className="text-amber-400 font-semibold">+1.800</span> precios</span>
+            <span className="hidden sm:inline text-gray-700">·</span>
+            <span><span className="text-amber-400 font-semibold">7</span> categorías</span>
+            <span className="hidden sm:inline text-gray-700">·</span>
+            <span>Corralones de <span className="text-amber-400 font-semibold">Jujuy y Salta</span></span>
+          </div>
 
           {/* Scroll indicator */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-600">
@@ -114,12 +125,9 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto space-y-8">
           <div className="flex items-center gap-4">
             <h2 className="text-2xl sm:text-3xl font-bold text-white whitespace-nowrap">
-              Categorias
+              ¿Qué necesitás para tu obra?
             </h2>
             <div className="flex-1 h-px bg-white/10" />
-            <span className="text-gray-500 text-sm whitespace-nowrap">
-              Todas las categorias
-            </span>
           </div>
 
           <CategoryChips />
@@ -136,11 +144,11 @@ export default function HomePage() {
             </span>
             <div className="pt-1 sm:pt-3">
               <h3 className="text-xl sm:text-2xl font-bold text-white">
-                Compara precios al instante
+                Dejá de recorrer corralones
               </h3>
               <p className="text-gray-400 mt-2 max-w-lg">
-                Busca cualquier material y ve los precios de distintos corralones
-                lado a lado. Ahorra tiempo y dinero en cada compra para tu obra.
+                ¿Cuántas horas perdés yendo de corralón en corralón preguntando
+                precios? Acá los ves todos juntos, al instante.
               </p>
             </div>
           </div>
@@ -152,12 +160,11 @@ export default function HomePage() {
             </span>
             <div className="pt-1 sm:pt-3">
               <h3 className="text-xl sm:text-2xl font-bold text-white">
-                Corralones cerca tuyo
+                Encontrá el más cercano a tu obra
               </h3>
               <p className="text-gray-400 mt-2 max-w-lg ml-auto">
-                Activa tu ubicacion y encontra los vendedores mas cercanos.
-                Ordena por distancia para optimizar tu logistica y reducir costos
-                de flete.
+                Activá tu ubicación y sabé qué corralón te queda más cerca.
+                Ahorrá en flete y tiempo.
               </p>
             </div>
           </div>
@@ -169,11 +176,11 @@ export default function HomePage() {
             </span>
             <div className="pt-1 sm:pt-3">
               <h3 className="text-xl sm:text-2xl font-bold text-white">
-                Contacto directo por WhatsApp
+                Hablale directo al corralón
               </h3>
               <p className="text-gray-400 mt-2 max-w-lg">
-                Encontraste el mejor precio? Contacta al corralon directamente
-                por WhatsApp con un solo toque. Sin intermediarios, sin esperas.
+                Sin crear cuenta, sin intermediarios. Tocás un botón y ya estás
+                hablando por WhatsApp.
               </p>
             </div>
           </div>
@@ -189,14 +196,14 @@ export default function HomePage() {
             </span>
 
             <h3 className="text-2xl sm:text-4xl font-bold text-white leading-tight mb-4">
-              Sos corralon?
+              Tus clientes ya están buscando.
               <br />
-              Publica tus precios gratis
+              ¿Van a encontrar tus precios?
             </h3>
 
             <p className="text-gray-400 max-w-lg mb-8">
-              Registrate, subi tu catalogo de materiales y empeza a recibir
-              consultas de compradores en tu zona. Sin costo, sin comisiones.
+              Más de 1.800 productos se comparan en la plataforma. Registrate
+              gratis, sin comisiones, y empezá a recibir consultas por WhatsApp.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -204,7 +211,7 @@ export default function HomePage() {
                 Empezar ahora
               </Link>
               <Link href="/search" className="btn-outline text-base px-8 py-4">
-                Buscar materiales
+                Ver cómo funciona
               </Link>
             </div>
           </div>

@@ -143,7 +143,7 @@ export default function OfferDetailPage() {
             </div>
             {offer.offer_updated_at && (
               <span className="text-[11px] text-gray-500 bg-white/[0.04] px-2.5 py-1 rounded-lg">
-                Actualizado {new Date(offer.offer_updated_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}
+                Act. {new Date(offer.offer_updated_at).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })}
               </span>
             )}
           </div>
