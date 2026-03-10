@@ -325,7 +325,7 @@ function SearchContent() {
         )}
 
         {/* Results list */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           {results.map((offer) => (
             <Link key={offer.offer_id} href={`/offer/${offer.offer_id}`}>
               <div className="result-row bg-[#0D1117] rounded-xl p-4 border border-gray-800/50">
